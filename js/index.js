@@ -19,6 +19,7 @@ const render = Render.create({
 Render.run(render)
 Runner.run(Runner.create(), engine)
 
+// Mouse drag feature
 World.add(world, MouseConstraint.create(engine, {
   mouse: Mouse.create(render.canvas)
 }))
