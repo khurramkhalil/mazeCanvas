@@ -1,16 +1,16 @@
 const {Engine, Render, Runner, World, Bodies, Body, Events} = Matter;
 
-const cells = 3;
-const width = 600;
-const height = 600;
-const unitLength = width / cells
+// const cells = 3;
+// const width = 600;
+// const height = 600;
+// const unitLength = width / cells
 
-// const cellsHorizontal = 10;
-// const cellsVertical = 8;
-// const width = window.innerWidth;
-// const height = window.innerHeight;
-// const unitLengthX = width / cellsHorizontal
-// const unitLengthY = height / cellsVertical
+const cellsHorizontal = 10;
+const cellsVertical = 8;
+const width = window.innerWidth;
+const height = window.innerHeight;
+const unitLengthX = width / cellsHorizontal
+const unitLengthY = height / cellsVertical
 
 const engine = Engine.create();
 // Turn on/off gravity
