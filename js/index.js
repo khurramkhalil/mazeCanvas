@@ -1,20 +1,27 @@
 const {Engine, Render, Runner, World, Bodies, Body, Events} = Matter;
 
 const cells = 3;
-
 const width = 600;
 const height = 600;
 const unitLength = width / cells
 
+// const cellsHorizontal = 10;
+// const cellsVertical = 8;
+// const width = window.innerWidth;
+// const height = window.innerHeight;
+// const unitLengthX = width / cellsHorizontal
+// const unitLengthY = height / cellsVertical
+
 const engine = Engine.create();
 // Turn on/off gravity
 engine.world.gravity.y=0;
+engine.world.gravity.x=0;
 const {world} = engine;
 const render = Render.create({
   element: document.body,
   engine: engine,
   options: {
-    wireframes: true,
+    wireframes: false,
     width,
     height
   }
@@ -52,14 +59,14 @@ const shuffle = (arr) => {
 }
 
 // Elegant way for initializing 2D arrays with default values, instead we can use for loops, but they are clunky
-const grid = Array(cells).fill(null).map(() => Array(cells).fill(false))
+const grid = Array(cellsVertical).fill(null).map(() => Array(cellsHorizontal).fill(false))
 
-const verticals = Array(cells).fill(null).map(() => Array(cells - 1).fill(false))
-const horizontals = Array(cells - 1).fill(null).map(() => Array(cells).fill(false))
+const verticals = Array(cellsVertical).fill(null).map(() => Array(cellsHorizontal - 1).fill(false))
+const horizontals = Array(cellsVertical - 1).fill(null).map(() => Array(cellsHorizontal).fill(false))
 
 
-const startRow = Math.floor(Math.random() * cells)
-const startColumn = Math.floor(Math.random() * cells)
+const startRow = Math.floor(Math.random() * cellsVertical)
+const startColumn = Math.floor(Math.random() * cellsHorizontal)
 
 const stepThroughCell = (row, column) => {
   //   If awe visited current cel already
@@ -81,7 +88,7 @@ const stepThroughCell = (row, column) => {
   for (let neighbor of neighbors) {
     const [nextRow, nextColumn, direction] = neighbor
     // See if that neighbor is out of bound
-    if (nextRow < 0 || nextRow >= cells || nextColumn < 0 || nextColumn >= cells) {
+    if (nextRow < 0 || nextRow >= cellsVertical || nextColumn < 0 || nextColumn >= cellsHorizontal) {
       continue;
     }
     // if we have visited that neighbor, continue to next neighbor
@@ -114,12 +121,16 @@ horizontals.forEach((row, rowIndex) => {
       return
     }
   const wall = Bodies.rectangle(
-    columnIndex * unitLength + unitLength /2,
-    rowIndex * unitLength + unitLength,
-    unitLength,
+    columnIndex * unitLengthX + unitLengthX /2,
+    rowIndex * unitLengthY + unitLengthY,
+    unitLengthX,
     10,
     {
-      isStatic: true
+      label: 'wall',
+      isStatic: true,
+      render: {
+        fillStyle: 'red'
+      }
     }
   )
 
@@ -134,12 +145,16 @@ verticals.forEach((row, rowIndex) => {
       return
     }
     const wall = Bodies.rectangle(
-      columnIndex*unitLength + unitLength,
-      rowIndex * unitLength+ unitLength /2,
+      columnIndex * unitLengthX + unitLengthX,
+      rowIndex * unitLengthY + unitLengthY /2,
       10,
-      unitLength,
+      unitLengthY,
       {
-        isStatic: true
+        label: 'wall',
+        isStatic: true,
+        render: {
+          fillStyle: 'red'
+        }
       }
     )
 
@@ -150,25 +165,33 @@ verticals.forEach((row, rowIndex) => {
 
 // Goal
 const goal = Bodies.rectangle(
-  width - unitLength/2,
-  height - unitLength/2,
-  unitLength * 0.7,
-  unitLength * 0.7,
+  width - unitLengthX / 2,
+  height - unitLengthY / 2,
+  unitLengthX * 0.7,
+  unitLengthY * 0.7,
   {
     label: 'goal',
-    isStatic: true
+    isStatic: true,
+    render: {
+      fillStyle: 'green'
+    }
   }
 )
 
 World.add(world, goal)
 
 // Ball
+
+const ballRadius = Math.min(unitLengthX, unitLengthY) / 4
 const ball = Bodies.circle(
-  unitLength / 2,
-  unitLength / 2,
-  unitLength / 4,
+  unitLengthX / 2,
+  unitLengthY / 2,
+  ballRadius,
   {
-    label: 'ball'
+    label: 'ball',
+    render: {
+      fillStyle: 'blue'
+    }
   }
 )
 
@@ -203,7 +226,15 @@ Events.on(engine, 'collisionStart', event => {
       labels.includes(collision.bodyA.label) &&
       labels.includes(collision.bodyB.label)
     ) {
-      console.log("User Won!")
+
+      document.querySelector('.winner').classList.remove('hidden')
+     // uncomment here for tomorrow's commits
+     world.gravity.y = 1
+      world.bodies.forEach(body => {
+        if (body.label === 'wall'){
+          Body.setStatic(body, false)
+        }
+      })
     }
   })
 })
